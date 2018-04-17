@@ -36,7 +36,6 @@ import javax.inject.Inject;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.image.BufferedImage;
 
 public class ZulrahCurrentPhaseOverlay extends Overlay
@@ -52,7 +51,7 @@ public class ZulrahCurrentPhaseOverlay extends Overlay
 	}
 
 	@Override
-	public Dimension render(Graphics2D graphics, Point parent)
+	public Dimension render(Graphics2D graphics)
 	{
 		ZulrahInstance instance = plugin.getInstance();
 
@@ -75,6 +74,6 @@ public class ZulrahCurrentPhaseOverlay extends Overlay
 		imagePanelComponent.setTitle(title);
 		imagePanelComponent.setBackgroundColor(backgroundColor);
 		imagePanelComponent.getImages().add(zulrahImage);
-		return imagePanelComponent.render(graphics, parent);
+		return imagePanelComponent.render(graphics);
 	}
 }

@@ -26,8 +26,9 @@
 package net.runelite.client.plugins.zulrah;
 
 import net.runelite.api.NPC;
-import net.runelite.api.Point;
 import net.runelite.api.Prayer;
+import net.runelite.api.coords.LocalPoint;
+import net.runelite.api.coords.WorldPoint;
 import net.runelite.client.plugins.zulrah.patterns.ZulrahPattern;
 import net.runelite.client.plugins.zulrah.phase.StandLocation;
 import net.runelite.client.plugins.zulrah.phase.ZulrahLocation;
@@ -37,40 +38,47 @@ import net.runelite.client.plugins.zulrah.phase.ZulrahType;
 public class ZulrahInstance
 {
 	private static final ZulrahPhase NO_PATTERN_MAGIC_PHASE = new ZulrahPhase(
-		ZulrahLocation.NORTH,
-		ZulrahType.MAGIC,
-		false,
-		StandLocation.PILLAR_WEST_OUTSIDE,
-		Prayer.PROTECT_FROM_MAGIC
+	  ZulrahLocation.NORTH,
+	  ZulrahType.MAGIC,
+	  false,
+	  StandLocation.PILLAR_WEST_OUTSIDE,
+	  Prayer.PROTECT_FROM_MAGIC
 	);
 	private static final ZulrahPhase NO_PATTERN_RANGE_PHASE = new ZulrahPhase(
-		ZulrahLocation.NORTH,
-		ZulrahType.RANGE,
-		false,
-		StandLocation.TOP_EAST,
-		Prayer.PROTECT_FROM_MISSILES
+	  ZulrahLocation.NORTH,
+	  ZulrahType.RANGE,
+	  false,
+	  StandLocation.TOP_EAST,
+	  Prayer.PROTECT_FROM_MISSILES
 	);
 	private static final ZulrahPhase PATTERN_A_OR_B_RANGE_PHASE = new ZulrahPhase(
-		ZulrahLocation.NORTH,
-		ZulrahType.RANGE,
-		false,
-		StandLocation.PILLAR_WEST_OUTSIDE,
-		Prayer.PROTECT_FROM_MISSILES
+	  ZulrahLocation.NORTH,
+	  ZulrahType.RANGE,
+	  false,
+	  StandLocation.PILLAR_WEST_OUTSIDE,
+	  Prayer.PROTECT_FROM_MISSILES
 	);
 
-	private final Point startLocation;
+	private final WorldPoint startWorldPoint;
+	private final LocalPoint startLocalPoint;
 	private ZulrahPattern pattern;
 	private int stage;
 	private ZulrahPhase phase;
 
 	public ZulrahInstance(NPC zulrah)
 	{
-		this.startLocation = zulrah.getWorldLocation();
+		this.startWorldPoint = zulrah.getWorldLocation();
+		this.startLocalPoint = zulrah.getLocalLocation();
 	}
 
-	public Point getStartLocation()
+	public WorldPoint getStartWorldPoint()
 	{
-		return startLocation;
+		return startWorldPoint;
+	}
+
+	public LocalPoint getStartLocalPoint()
+	{
+		return startLocalPoint;
 	}
 
 	public ZulrahPattern getPattern()

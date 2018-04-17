@@ -27,18 +27,12 @@
 package net.runelite.client.plugins.zulrah;
 
 import com.google.inject.Binder;
-import com.google.inject.Provides;
-import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.Collection;
-import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
 import net.runelite.api.GameState;
 import net.runelite.api.NPC;
 import net.runelite.api.Query;
 import net.runelite.api.queries.NPCQuery;
-import net.runelite.client.config.ConfigManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins.zulrah.overlays.ZulrahCurrentPhaseOverlay;
@@ -55,38 +49,36 @@ import net.runelite.client.task.Schedule;
 import net.runelite.client.ui.overlay.Overlay;
 import net.runelite.client.util.QueryRunner;
 
+import javax.inject.Inject;
+import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
+import java.util.Collection;
+
 @PluginDescriptor(
-	name = "Zulrah"
+  name = "Zulrah"
 )
 @Slf4j
 public class ZulrahPlugin extends Plugin
 {
-	@Inject
-	private QueryRunner queryRunner;
-
-	@Inject
-	private Client client;
-
-	@Inject
-	private ZulrahOverlay overlay;
-
-	@Inject
-	private ZulrahCurrentPhaseOverlay currentPhaseOverlay;
-
-	@Inject
-	private ZulrahNextPhaseOverlay nextPhaseOverlay;
-
-	@Inject
-	private ZulrahPrayerOverlay zulrahPrayerOverlay;
-
 	private final ZulrahPattern[] patterns = new ZulrahPattern[]
-	{
+	  {
 		new ZulrahPatternA(),
 		new ZulrahPatternB(),
 		new ZulrahPatternC(),
 		new ZulrahPatternD()
-	};
-
+	  };
+	@Inject
+	private QueryRunner queryRunner;
+	@Inject
+	private Client client;
+	@Inject
+	private ZulrahOverlay overlay;
+	@Inject
+	private ZulrahCurrentPhaseOverlay currentPhaseOverlay;
+	@Inject
+	private ZulrahNextPhaseOverlay nextPhaseOverlay;
+	@Inject
+	private ZulrahPrayerOverlay zulrahPrayerOverlay;
 	private ZulrahInstance instance;
 
 	@Override
@@ -96,14 +88,14 @@ public class ZulrahPlugin extends Plugin
 	}
 
 	@Override
-	public Collection<Overlay> getOverlays()
+	public Collection <Overlay> getOverlays()
 	{
 		return Arrays.asList(overlay, currentPhaseOverlay, nextPhaseOverlay, zulrahPrayerOverlay);
 	}
 
 	@Schedule(
-		period = 600,
-		unit = ChronoUnit.MILLIS
+	  period = 600,
+	  unit = ChronoUnit.MILLIS
 	)
 	public void update()
 	{
@@ -129,7 +121,7 @@ public class ZulrahPlugin extends Plugin
 			log.debug("Zulrah encounter has started.");
 		}
 
-		ZulrahPhase currentPhase = ZulrahPhase.valueOf(zulrah, instance.getStartLocation());
+		ZulrahPhase currentPhase = ZulrahPhase.valueOf(zulrah, instance.getStartWorldPoint());
 		if (instance.getPhase() == null)
 		{
 			instance.setPhase(currentPhase);

@@ -31,7 +31,9 @@ import net.runelite.api.NpcID;
 @Slf4j
 public enum ZulrahType
 {
-	RANGE, MAGIC, MELEE;
+	RANGE,
+	MAGIC,
+	MELEE;
 
 	private static final int ZULRAH_RANGE = NpcID.ZULRAH;
 	private static final int ZULRAH_MELEE = NpcID.ZULRAH_2043;

@@ -25,25 +25,26 @@
  */
 package net.runelite.client.plugins.zulrah.overlays;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FontMetrics;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.Polygon;
-import java.awt.image.BufferedImage;
-import javax.annotation.Nullable;
-import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
 import net.runelite.api.Perspective;
 import net.runelite.api.Point;
+import net.runelite.api.coords.LocalPoint;
+import net.runelite.api.coords.WorldPoint;
 import net.runelite.client.plugins.zulrah.ZulrahInstance;
 import net.runelite.client.plugins.zulrah.ZulrahPlugin;
 import net.runelite.client.plugins.zulrah.phase.ZulrahPhase;
 import net.runelite.client.ui.overlay.Overlay;
 import net.runelite.client.ui.overlay.OverlayPosition;
+
+import javax.inject.Inject;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.Polygon;
+import java.awt.image.BufferedImage;
 
 @Slf4j
 public class ZulrahOverlay extends Overlay
@@ -55,7 +56,7 @@ public class ZulrahOverlay extends Overlay
 	private final ZulrahPlugin plugin;
 
 	@Inject
-	ZulrahOverlay(@Nullable Client client, ZulrahPlugin plugin)
+	ZulrahOverlay(Client client, ZulrahPlugin plugin)
 	{
 		setPosition(OverlayPosition.DYNAMIC);
 		this.client = client;
@@ -63,7 +64,7 @@ public class ZulrahOverlay extends Overlay
 	}
 
 	@Override
-	public Dimension render(Graphics2D graphics, java.awt.Point point)
+	public Dimension render(Graphics2D graphics)
 	{
 		ZulrahInstance instance = plugin.getInstance();
 
@@ -79,30 +80,28 @@ public class ZulrahOverlay extends Overlay
 			return null;
 		}
 
-		Point startTile = instance.getStartLocation();
+		WorldPoint startWorldPoint = instance.getStartWorldPoint();
 		if (nextPhase != null && currentPhase.getStandLocation() == nextPhase.getStandLocation())
 		{
-			drawStandTiles(graphics, startTile, currentPhase, nextPhase);
+			drawStandTiles(graphics, startWorldPoint, currentPhase, nextPhase);
 		}
 		else
 		{
-			drawStandTile(graphics, startTile, currentPhase, false);
-			drawStandTile(graphics, startTile, nextPhase, true);
+			drawStandTile(graphics, startWorldPoint, currentPhase, false);
+			drawStandTile(graphics, startWorldPoint, nextPhase, true);
 		}
-		drawZulrahTileMinimap(graphics, startTile, currentPhase, false);
-		drawZulrahTileMinimap(graphics, startTile, nextPhase, true);
 
 		return null;
 	}
 
-	private void drawStandTiles(Graphics2D graphics, Point startTile, ZulrahPhase currentPhase, ZulrahPhase nextPhase)
+	private void drawStandTiles(Graphics2D graphics, WorldPoint startWorldPoint, ZulrahPhase currentPhase, ZulrahPhase nextPhase)
 	{
-		Point localTile = Perspective.worldToLocal(client, currentPhase.getStandTile(startTile));
-		localTile = new Point(localTile.getX() + Perspective.LOCAL_TILE_SIZE / 2, localTile.getY() + Perspective.LOCAL_TILE_SIZE / 2);
-		Polygon northPoly = getCanvasTileNorthPoly(client, localTile);
-		Polygon southPoly = getCanvasTileSouthPoly(client, localTile);
-		Polygon poly = Perspective.getCanvasTilePoly(client, localTile);
-		Point textLoc = Perspective.getCanvasTextLocation(client, graphics, localTile, "Next", 0);
+		WorldPoint world = currentPhase.getStandTile(startWorldPoint);
+		LocalPoint local = LocalPoint.fromWorld(client, world);
+		Polygon northPoly = getCanvasTileNorthPoly(client, local);
+		Polygon southPoly = getCanvasTileSouthPoly(client, local);
+		Polygon poly = Perspective.getCanvasTilePoly(client, local);
+		Point textLoc = Perspective.getCanvasTextLocation(client, graphics, local, "Next", 0);
 		if (northPoly != null && southPoly != null && poly != null && textLoc != null)
 		{
 			Color northColor = currentPhase.getColor();
@@ -122,7 +121,7 @@ public class ZulrahOverlay extends Overlay
 			Image jadPrayerImg = ZulrahImageManager.getProtectionPrayerBufferedImage(nextPhase.getPrayer());
 			if (jadPrayerImg != null)
 			{
-				Point imageLoc = Perspective.getCanvasImageLocation(client, graphics, localTile, (BufferedImage) jadPrayerImg, 0);
+				Point imageLoc = Perspective.getCanvasImageLocation(client, graphics, local, (BufferedImage) jadPrayerImg, 0);
 				if (imageLoc != null)
 				{
 					graphics.drawImage(jadPrayerImg, imageLoc.getX(), imageLoc.getY(), null);
@@ -131,16 +130,19 @@ public class ZulrahOverlay extends Overlay
 		}
 	}
 
-	private void drawStandTile(Graphics2D graphics, Point startTile, ZulrahPhase phase, boolean next)
+	private void drawStandTile(Graphics2D graphics, WorldPoint startWorldPoint, ZulrahPhase phase, boolean next)
 	{
 		if (phase == null)
 		{
 			return;
 		}
-
-		Point localTile = Perspective.worldToLocal(client, phase.getStandTile(startTile));
-		localTile = new Point(localTile.getX() + Perspective.LOCAL_TILE_SIZE / 2, localTile.getY() + Perspective.LOCAL_TILE_SIZE / 2);
-		Polygon poly = Perspective.getCanvasTilePoly(client, localTile);
+		WorldPoint world = phase.getStandTile(startWorldPoint);
+		LocalPoint local = LocalPoint.fromWorld(client, world);
+		if (local == null)
+		{
+			return;
+		}
+		Polygon poly = Perspective.getCanvasTilePoly(client, local);
 		Color color = phase.getColor();
 		if (poly != null)
 		{
@@ -152,7 +154,7 @@ public class ZulrahOverlay extends Overlay
 		}
 		if (next)
 		{
-			Point textLoc = Perspective.getCanvasTextLocation(client, graphics, localTile, "Next", 0);
+			Point textLoc = Perspective.getCanvasTextLocation(client, graphics, local, "Next", 0);
 			if (textLoc != null)
 			{
 				graphics.setColor(NEXT_TEXT_COLOR);
@@ -163,7 +165,7 @@ public class ZulrahOverlay extends Overlay
 				Image jadPrayerImg = ZulrahImageManager.getProtectionPrayerBufferedImage(phase.getPrayer());
 				if (jadPrayerImg != null)
 				{
-					Point imageLoc = Perspective.getCanvasImageLocation(client, graphics, localTile, (BufferedImage) jadPrayerImg, 0);
+					Point imageLoc = Perspective.getCanvasImageLocation(client, graphics, local, (BufferedImage) jadPrayerImg, 0);
 					if (imageLoc != null)
 					{
 						graphics.drawImage(jadPrayerImg, imageLoc.getX(), imageLoc.getY(), null);
@@ -173,36 +175,14 @@ public class ZulrahOverlay extends Overlay
 		}
 	}
 
-	private void drawZulrahTileMinimap(Graphics2D graphics, Point startTile, ZulrahPhase phase, boolean next)
-	{
-		if (phase == null)
-		{
-			return;
-		}
-		Point zulrahLocalTile = Perspective.worldToLocal(client, phase.getZulrahTile(startTile));
-		Point zulrahMinimapPoint = Perspective.worldToMiniMap(client, zulrahLocalTile.getX(), zulrahLocalTile.getY());
-		Color color = phase.getColor();
-		graphics.setColor(color);
-		graphics.fillOval(zulrahMinimapPoint.getX(), zulrahMinimapPoint.getY(), 5, 5);
-		graphics.setColor(TILE_BORDER_COLOR);
-		graphics.setStroke(new BasicStroke(1));
-		graphics.drawOval(zulrahMinimapPoint.getX(), zulrahMinimapPoint.getY(), 5, 5);
-		if (next)
-		{
-			graphics.setColor(NEXT_TEXT_COLOR);
-			FontMetrics fm = graphics.getFontMetrics();
-			graphics.drawString("Next", zulrahMinimapPoint.getX() - fm.stringWidth("Next") / 2, zulrahMinimapPoint.getY() - 2);
-		}
-	}
-
-	private Polygon getCanvasTileNorthPoly(Client client, Point localLocation)
+	private Polygon getCanvasTileNorthPoly(Client client, LocalPoint local)
 	{
 		int plane = client.getPlane();
 		int halfTile = Perspective.LOCAL_TILE_SIZE / 2;
 
-		Point p1 = Perspective.worldToCanvas(client, localLocation.getX() - halfTile, localLocation.getY() - halfTile, plane);
-		Point p2 = Perspective.worldToCanvas(client, localLocation.getX() - halfTile, localLocation.getY() + halfTile, plane);
-		Point p3 = Perspective.worldToCanvas(client, localLocation.getX() + halfTile, localLocation.getY() + halfTile, plane);
+		Point p1 = Perspective.worldToCanvas(client, local.getX() - halfTile, local.getY() - halfTile, plane);
+		Point p2 = Perspective.worldToCanvas(client, local.getX() - halfTile, local.getY() + halfTile, plane);
+		Point p3 = Perspective.worldToCanvas(client, local.getX() + halfTile, local.getY() + halfTile, plane);
 
 		if (p1 == null || p2 == null || p3 == null)
 		{
@@ -217,14 +197,14 @@ public class ZulrahOverlay extends Overlay
 		return poly;
 	}
 
-	private Polygon getCanvasTileSouthPoly(Client client, Point localLocation)
+	private Polygon getCanvasTileSouthPoly(Client client, LocalPoint local)
 	{
 		int plane = client.getPlane();
 		int halfTile = Perspective.LOCAL_TILE_SIZE / 2;
 
-		Point p1 = Perspective.worldToCanvas(client, localLocation.getX() - halfTile, localLocation.getY() - halfTile, plane);
-		Point p2 = Perspective.worldToCanvas(client, localLocation.getX() + halfTile, localLocation.getY() + halfTile, plane);
-		Point p3 = Perspective.worldToCanvas(client, localLocation.getX() + halfTile, localLocation.getY() - halfTile, plane);
+		Point p1 = Perspective.worldToCanvas(client, local.getX() - halfTile, local.getY() - halfTile, plane);
+		Point p2 = Perspective.worldToCanvas(client, local.getX() + halfTile, local.getY() + halfTile, plane);
+		Point p3 = Perspective.worldToCanvas(client, local.getX() + halfTile, local.getY() - halfTile, plane);
 
 		if (p1 == null || p2 == null || p3 == null)
 		{

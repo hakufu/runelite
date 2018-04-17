@@ -25,17 +25,18 @@
  */
 package net.runelite.client.plugins.zulrah.patterns;
 
-import java.util.ArrayList;
-import java.util.List;
 import net.runelite.api.Prayer;
 import net.runelite.client.plugins.zulrah.phase.StandLocation;
 import net.runelite.client.plugins.zulrah.phase.ZulrahLocation;
 import net.runelite.client.plugins.zulrah.phase.ZulrahPhase;
 import net.runelite.client.plugins.zulrah.phase.ZulrahType;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public abstract class ZulrahPattern
 {
-	private final List<ZulrahPhase> pattern = new ArrayList<>();
+	private final List <ZulrahPhase> pattern = new ArrayList <>();
 
 	protected final void add(ZulrahLocation loc, ZulrahType type, StandLocation standLocation, Prayer prayer)
 	{

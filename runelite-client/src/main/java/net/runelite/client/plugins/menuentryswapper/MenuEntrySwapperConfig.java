@@ -232,4 +232,14 @@ public interface MenuEntrySwapperConfig extends Config
 	{
 		return true;
 	}
+		@ConfigItem(
+			position = 18,
+			keyName = "swapWithdraw",
+			name = "Withdraw X",
+			description = "Swap Withdraw-1 with Withdraw-X on bank items"
+	)
+	default boolean swapWithdraw()
+	{
+		return false;
+	}
 }

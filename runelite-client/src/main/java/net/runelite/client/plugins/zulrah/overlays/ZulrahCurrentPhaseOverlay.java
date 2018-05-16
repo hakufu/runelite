@@ -30,7 +30,9 @@ import net.runelite.client.plugins.zulrah.phase.ZulrahPhase;
 import net.runelite.client.ui.overlay.Overlay;
 import net.runelite.client.ui.overlay.OverlayPosition;
 import net.runelite.client.ui.overlay.OverlayPriority;
-import net.runelite.client.ui.overlay.components.ImagePanelComponent;
+import net.runelite.client.ui.overlay.components.ImageComponent;
+import net.runelite.client.ui.overlay.components.PanelComponent;
+import net.runelite.client.ui.overlay.components.TitleComponent;
 
 import javax.inject.Inject;
 import java.awt.Color;
@@ -70,10 +72,12 @@ public class ZulrahCurrentPhaseOverlay extends Overlay
 		String title = currentPhase.isJad() ? "JAD PHASE" : pattern;
 		Color backgroundColor = currentPhase.getColor();
 		BufferedImage zulrahImage = ZulrahImageManager.getZulrahBufferedImage(currentPhase.getType());
-		ImagePanelComponent imagePanelComponent = new ImagePanelComponent();
-		imagePanelComponent.setTitle(title);
+		PanelComponent imagePanelComponent = new PanelComponent();
+		//imagePanelComponent.setTitle(title);
+		imagePanelComponent.getChildren().add(TitleComponent.builder().text(title).build());
+		imagePanelComponent.getChildren().clear();
 		imagePanelComponent.setBackgroundColor(backgroundColor);
-		imagePanelComponent.getImages().add(zulrahImage);
+		imagePanelComponent.getChildren().add(new ImageComponent(zulrahImage));
 		return imagePanelComponent.render(graphics);
 	}
 }

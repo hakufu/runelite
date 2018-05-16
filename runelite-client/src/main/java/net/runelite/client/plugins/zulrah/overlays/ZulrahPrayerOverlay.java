@@ -32,7 +32,9 @@ import net.runelite.client.plugins.zulrah.phase.ZulrahPhase;
 import net.runelite.client.ui.overlay.Overlay;
 import net.runelite.client.ui.overlay.OverlayPosition;
 import net.runelite.client.ui.overlay.OverlayPriority;
-import net.runelite.client.ui.overlay.components.ImagePanelComponent;
+import net.runelite.client.ui.overlay.components.ImageComponent;
+import net.runelite.client.ui.overlay.components.PanelComponent;
+import net.runelite.client.ui.overlay.components.TitleComponent;
 
 import javax.inject.Inject;
 import java.awt.Dimension;
@@ -76,9 +78,10 @@ public class ZulrahPrayerOverlay extends Overlay
 		}
 
 		BufferedImage prayerImage = ZulrahImageManager.getProtectionPrayerBufferedImage(prayer);
-		ImagePanelComponent imagePanelComponent = new ImagePanelComponent();
-		imagePanelComponent.setTitle("Switch!");
-		imagePanelComponent.getImages().add(prayerImage);
+		PanelComponent imagePanelComponent = new PanelComponent();
+		//imagePanelComponent.setTitle("Switch!");
+		imagePanelComponent.getChildren().add(TitleComponent.builder().text("Switch!").build());
+		imagePanelComponent.getChildren().add(new ImageComponent(prayerImage));
 		return imagePanelComponent.render(graphics);
 	}
 }

@@ -26,6 +26,7 @@ package net.runelite.client.plugins.barbarianassault;
 
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Rectangle;
 import javax.inject.Inject;
 import lombok.Getter;
@@ -34,7 +35,6 @@ import net.runelite.api.Client;
 import net.runelite.api.GameState;
 import net.runelite.api.widgets.Widget;
 import net.runelite.client.ui.overlay.Overlay;
-import net.runelite.client.ui.overlay.OverlayLayer;
 import net.runelite.client.ui.overlay.OverlayPosition;
 
 public class BarbarianAssaultOverlay extends Overlay
@@ -52,16 +52,15 @@ public class BarbarianAssaultOverlay extends Overlay
 	BarbarianAssaultOverlay(Client client, BarbarianAssaultPlugin plugin, BarbarianAssaultConfig config)
 	{
 		setPosition(OverlayPosition.DYNAMIC);
-		setLayer(OverlayLayer.ABOVE_WIDGETS);
 		this.client = client;
 		this.plugin = plugin;
 		this.config = config;
 	}
 
 	@Override
-	public Dimension render(Graphics2D graphics)
+	public Dimension render(Graphics2D graphics, Point parent)
 	{
-		if (client.getGameState() != GameState.LOGGED_IN || currentRound == null)
+		if (!config.enabled() || client.getGameState() != GameState.LOGGED_IN || currentRound == null)
 		{
 			return null;
 		}
